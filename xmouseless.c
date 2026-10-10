@@ -292,9 +292,12 @@ void handle_key(KeyCode keycode, Bool is_press) {
   }
 
   for (i = 0; i < LENGTH(click_bindings); i++) {
-    if (click_bindings[i].keysym == keysym) {
-      click(click_bindings[i].button, is_press);
-      printf("click: %u %i\n", click_bindings[i].button, is_press);
+    if (click_bindings[i].keysym == keysym && is_press) {
+      /* unmap first so the overlay can't intercept, then click and exit at once */
+      if (grid_win != None) { XUnmapWindow(dpy, grid_win); XFlush(dpy); }
+      printf("click: %u\n", click_bindings[i].button);
+      click_full(click_bindings[i].button);
+      close_x(EXIT_SUCCESS);
     }
   }
 
