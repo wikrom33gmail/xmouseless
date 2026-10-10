@@ -17,6 +17,10 @@ Changes made
     Separate 64pt label font with fallbacks
     Click-through via XShapeCombineRectangles empty input region
 
+4. Startup speed — font metrics cached to disk (in xmouseless.c)
+
+    The X server here takes ~12-50 ms per font to return ascent/descent/char-width, and that was ~97% of startup time. On first launch each resolved font's metrics are written to ~/.cache/xmouseless/fonts; later launches skip the slow query entirely (only a free XLoadFont) — warm startup drops from ~60 ms to well under 1 ms for fonts.
+
 Bugs fixed
 
     Help box hidden by overlay → XRaiseWindow after overlay creation

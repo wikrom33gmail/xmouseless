@@ -98,7 +98,3 @@ static KeySym exit_keys[] = {
   XK_Escape
 };
 
-/* help box repositioning (grid thirds):
- * left-side grid keys push the box aside, right-side bring it back */
-static KeySym info_alt_keys[] = { XK_a, XK_r, XK_s, XK_z, XK_x, XK_c };
-static KeySym info_default_keys[] = { XK_l, XK_u, XK_y, XK_n, XK_e, XK_i };
