@@ -48,6 +48,7 @@ When started, xmouseless grabs the keyboard and shows a fullscreen **grid overla
 ### Grid jump
 
 Each of the 27 keys jumps the pointer to the center of one grid cell, computed from the live screen size (`xdotool getdisplaygeometry`) — no hardcoded coordinates, so it works on any resolution. The overlay labels match these bindings:
+PS: I use colemak layout
 
 ```
 q   w   f   p   g   j   l   u   y
@@ -80,14 +81,3 @@ Configuration lives in `config.h` — a C header file, but you don't need any pr
 ## Tutorial
 
 [`snail.xmouseless.md`](snail.xmouseless.md) is a slow, step-by-step walkthrough of how this program works — from the big picture down to individual functions.
-
-## New version
-
-Because of some minor issues with xmouseless which cannot be easily fixed the way it operates, a new version, called [mouseless](https://github.com/jbensmann/mouseless), has been created. It operates on the level of Linux devices and has the following advantages:
-
-- not dependent on X11, e.g. works with Wayland too
-- unlike xmouseless, does not have problems with clicks in some menus
-- possibility to toggle the mouse mode by holding down a key
-- additional feature: remap keys, define arbitrary layers (similar to kmonad)
-
-Nevertheless, you still might want to try xmouseless first to see if it fits your needs, since it is a little easier to configure, and try mouseless later in case you want more features.
