@@ -68,6 +68,7 @@ struct { float x, y, speed_x, speed_y; } scrollinfo;
 static Window       grid_win = None;
 static GC           grid_gc = NULL;
 static XFontStruct *grid_font = NULL;
+static int          grid_used = 0;   /* set on the first grid jump: disables the grid, enables fine keys */
 
 static const char *grid_keys[3][9] = {
   { "q", "w", "f", "p", "g", "j", "l", "u", "y" },
@@ -291,6 +292,17 @@ void handle_key(KeyCode keycode, Bool is_press) {
     }
   }
 
+  /* fine-tune keys (h/e/l/k) only work once you've jumped to a box */
+  if (grid_used) {
+    for (i = 0; i < LENGTH(fine_move_bindings); i++) {
+      if (fine_move_bindings[i].keysym == keysym) {
+        int sign = is_press ? 1 : -1;
+        mouseinfo.speed_x += sign * fine_move_bindings[i].x;
+        mouseinfo.speed_y += sign * fine_move_bindings[i].y;
+      }
+    }
+  }
+
   for (i = 0; i < LENGTH(click_bindings); i++) {
     if (click_bindings[i].keysym == keysym && is_press) {
       /* unmap first so the overlay can't intercept, then click and exit at once */
@@ -325,20 +337,26 @@ void handle_key(KeyCode keycode, Bool is_press) {
   }
 
   if (!is_press) {
-    for (i = 0; i < LENGTH(shell_bindings); i++) {
-      if (shell_bindings[i].keysym == keysym) {
-        printf("executing: %s\n", shell_bindings[i].command);
-        fflush(stdout);                       /* nothing left for the child to duplicate */
-        pid_t pid = fork();
-        if (pid == 0) {
-          signal(SIGCHLD, SIG_DFL);           /* sh must be able to wait() for xdotool */
-          execl("/bin/sh", "sh", "-c", shell_bindings[i].command, (char *)NULL);
-          _exit(127);                         /* never flush the parent's buffers */
-        } else if (pid < 0) {
-          perror("xmouseless: fork");
+    /* grid jumps fire only before the first use */
+    if (!grid_used) {
+      for (i = 0; i < LENGTH(shell_bindings); i++) {
+        if (shell_bindings[i].keysym == keysym) {
+          grid_used = 1;   /* one use only: the grid is disabled from here on */
+          if (grid_win != None) { XUnmapWindow(dpy, grid_win); XFlush(dpy); }
+          printf("executing: %s\n", shell_bindings[i].command);
+          fflush(stdout);                       /* nothing left for the child to duplicate */
+          pid_t pid = fork();
+          if (pid == 0) {
+            signal(SIGCHLD, SIG_DFL);           /* sh must be able to wait() for xdotool */
+            execl("/bin/sh", "sh", "-c", shell_bindings[i].command, (char *)NULL);
+            _exit(127);                         /* never flush the parent's buffers */
+          } else if (pid < 0) {
+            perror("xmouseless: fork");
+          }
         }
       }
     }
+
     for (i = 0; i < LENGTH(exit_keys); i++) {
       if (exit_keys[i] == keysym) close_x(EXIT_SUCCESS);
     }

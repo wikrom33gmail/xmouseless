@@ -25,6 +25,16 @@ static MoveBinding move_bindings[] = {
   { XK_Up,         0,    -1 },
   { XK_Down,         0,     1 },
 };
+/* fine-tune movement keys (vim-style, Colemak layout): h=left e=right l=up k=down.
+ * INACTIVE until the first grid jump; once you've jumped to a box these nudge the
+ * pointer and the grid is disabled for good. */
+static MoveBinding fine_move_bindings[] = {
+  /* key         x      y */
+  { XK_h,        -1,     0 },   /* left  */
+  { XK_e,         1,     0 },   /* right */
+  { XK_l,         0,    -1 },   /* up    */
+  { XK_k,         0,     1 },   /* down  */
+};
 
 /* 1: left
  * 2: middle
